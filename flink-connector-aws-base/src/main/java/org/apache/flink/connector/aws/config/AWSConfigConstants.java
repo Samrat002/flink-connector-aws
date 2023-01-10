@@ -18,6 +18,7 @@
 package org.apache.flink.connector.aws.config;
 
 import org.apache.flink.annotation.PublicEvolving;
+import org.apache.flink.connector.aws.util.AwsClientFactory;
 
 import software.amazon.awssdk.auth.credentials.AwsCredentialsProvider;
 import software.amazon.awssdk.http.async.SdkAsyncHttpClient;
@@ -153,6 +154,194 @@ public class AWSConfigConstants {
 
     /** Read Request timeout for {@link SdkAsyncHttpClient}. */
     public static final String HTTP_CLIENT_READ_TIMEOUT_MILLIS = "aws.http-client.read-timeout";
+
+    /**
+     * The type of {@link software.amazon.awssdk.http.SdkHttpClient} implementation used by {@link
+     * AwsClientFactory} If set, all AWS clients will use this specified HTTP client. If not set,
+     * HTTP_CLIENT_TYPE_DEFAULT will be used. For specific types supported, see HTTP_CLIENT_TYPE_*
+     * defined below.
+     */
+    public static final String HTTP_CLIENT_TYPE = "http-client.type";
+
+    /**
+     * Used to configure the connection acquisition timeout in milliseconds for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_CONNECTION_ACQUISITION_TIMEOUT_MS =
+            "http-client.apache.connection-acquisition-timeout-ms";
+
+    /**
+     * If Glue should skip name validations It is recommended to stick to Glue best practice in
+     * https://docs.aws.amazon.com/athena/latest/ug/glue-best-practices.html to make sure operations
+     * are Hive compatible. This is only added for users that have existing conventions using
+     * non-standard characters. When database name and table name validation are skipped, there is
+     * no guarantee that downstream systems would all support the names.
+     */
+    public static final String GLUE_CATALOG_SKIP_NAME_VALIDATION = "glue.skip-name-validation";
+
+    /**
+     * Used to configure the connection max idle time in milliseconds for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_CONNECTION_MAX_IDLE_TIME_MS =
+            "http-client.apache.connection-max-idle-time-ms";
+
+    /**
+     * Used to configure the connection time to live in milliseconds for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_CONNECTION_TIME_TO_LIVE_MS =
+            "http-client.apache.connection-time-to-live-ms";
+
+    // ---- glue configs
+
+    /**
+     * Used to configure the connection timeout in milliseconds for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_CONNECTION_TIMEOUT_MS =
+            "http-client.apache.connection-timeout-ms";
+
+    /**
+     * Used to configure whether to enable the expect continue setting for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE
+     *
+     * <p>In default, this is disabled.
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_EXPECT_CONTINUE_ENABLED =
+            "http-client.apache.expect-continue-enabled";
+
+    /**
+     * Used to configure the max connections number for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_MAX_CONNECTIONS =
+            "http-client.apache.max-connections";
+
+    /**
+     * Used to configure the socket timeout in milliseconds for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_SOCKET_TIMEOUT_MS =
+            "http-client.apache.socket-timeout-ms";
+
+    /**
+     * Used to configure whether to enable the tcp keep alive setting for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE.
+     *
+     * <p>In default, this is disabled.
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_TCP_KEEP_ALIVE_ENABLED =
+            "http-client.apache.tcp-keep-alive-enabled";
+
+    /**
+     * Used to configure whether to use idle connection reaper for {@link
+     * software.amazon.awssdk.http.apache.ApacheHttpClient.Builder}. This flag only works when
+     * {@link #HTTP_CLIENT_TYPE} is set to HTTP_CLIENT_TYPE_APACHE.
+     *
+     * <p>In default, this is enabled.
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_APACHE_USE_IDLE_CONNECTION_REAPER_ENABLED =
+            "http-client.apache.use-idle-connection-reaper-enabled";
+
+    /**
+     * Configure an alternative endpoint of the Glue service for GlueCatalog to access.
+     *
+     * <p>This could be used to use GlueCatalog with any glue-compatible metastore service that has
+     * a different endpoint
+     */
+    public static final String GLUE_CATALOG_ENDPOINT = "glue.endpoint";
+
+    /**
+     * The ID of the Glue Data Catalog where the tables reside. If none is provided, Glue
+     * automatically uses the caller's AWS account ID by default.
+     *
+     * <p>For more details, see
+     * https://docs.aws.amazon.com/glue/latest/dg/aws-glue-api-catalog-databases.html
+     */
+    public static final String GLUE_CATALOG_ID = "glue.id";
+
+    /**
+     * The account ID used in a Glue resource ARN, e.g.
+     * arn:aws:glue:us-east-1:1000000000000:table/db1/table1
+     */
+    public static final String GLUE_ACCOUNT_ID = "glue.account-id";
+
+    /**
+     * If Glue should skip archiving an old table version when creating a new version in a commit.
+     * By default Glue archives all old table versions after an UpdateTable call, but Glue has a
+     * default max number of archived table versions (can be increased). So for streaming use case
+     * with lots of commits, it is recommended to set this value to true.
+     */
+    public static final String GLUE_CATALOG_SKIP_ARCHIVE = "glue.skip-archive";
+
+    /**
+     * Used to configure the connection timeout in milliseconds for {@link
+     * UrlConnectionHttpClient.Builder}. This flag only works when {@link #HTTP_CLIENT_TYPE} is set
+     * to CLIENT_TYPE_URLCONNECTION.
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/urlconnection/UrlConnectionHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_URLCONNECTION_CONNECTION_TIMEOUT_MS =
+            "http-client.urlconnection.connection-timeout-ms";
+
+    /**
+     * Used to configure the socket timeout in milliseconds for {@link
+     * UrlConnectionHttpClient.Builder}. This flag only works when {@link #HTTP_CLIENT_TYPE} is set
+     * to CLIENT_TYPE_URLCONNECTION.
+     *
+     * <p>For more details, see
+     * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/urlconnection/UrlConnectionHttpClient.Builder.html
+     */
+    public static final String HTTP_CLIENT_URLCONNECTION_SOCKET_TIMEOUT_MS =
+            "http-client.urlconnection.socket-timeout-ms";
+
+    public static final String CLIENT_TYPE_URLCONNECTION = "urlconnection";
+
+    /**
+     * {@link software.amazon.awssdk.http.apache.ApacheHttpClient} will be used as the HTTP Client.
+     */
+    public static final String CLIENT_TYPE_APACHE = "apache";
+
+    public static final boolean GLUE_CATALOG_SKIP_ARCHIVE_DEFAULT = false;
+
+    public static final boolean GLUE_CATALOG_SKIP_NAME_VALIDATION_DEFAULT = false;
 
     public static String accessKeyId(String prefix) {
         return prefix + ".basic.accesskeyid";
