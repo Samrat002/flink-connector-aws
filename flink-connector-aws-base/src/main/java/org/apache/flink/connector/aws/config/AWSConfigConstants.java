@@ -215,8 +215,8 @@ public class AWSConfigConstants {
      * <p>For more details, see
      * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
      */
-    public static final String HTTP_CLIENT_APACHE_CONNECTION_TIMEOUT_MS =
-            "http-client.apache.connection-timeout-ms";
+    public static final String HTTP_CLIENT_CONNECTION_TIMEOUT_MS =
+            "aws.http-client.connection-timeout-ms";
 
     /**
      * Used to configure whether to enable the expect continue setting for {@link
@@ -250,8 +250,7 @@ public class AWSConfigConstants {
      * <p>For more details, see
      * https://sdk.amazonaws.com/java/api/latest/software/amazon/awssdk/http/apache/ApacheHttpClient.Builder.html
      */
-    public static final String HTTP_CLIENT_APACHE_SOCKET_TIMEOUT_MS =
-            "http-client.apache.socket-timeout-ms";
+    public static final String HTTP_CLIENT_SOCKET_TIMEOUT_MS = "http-client.socket-timeout-ms";
 
     /**
      * Used to configure whether to enable the tcp keep alive setting for {@link

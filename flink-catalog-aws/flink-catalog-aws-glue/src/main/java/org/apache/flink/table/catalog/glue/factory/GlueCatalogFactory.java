@@ -22,12 +22,14 @@ import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.table.catalog.Catalog;
 import org.apache.flink.table.catalog.glue.GlueCatalog;
 import org.apache.flink.table.catalog.glue.GlueCatalogOptions;
+import org.apache.flink.table.catalog.glue.util.GlueCatalogOptionsUtils;
 import org.apache.flink.table.factories.CatalogFactory;
 import org.apache.flink.table.factories.FactoryUtil;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Properties;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -55,7 +57,11 @@ public class GlueCatalogFactory implements CatalogFactory {
     public Catalog createCatalog(Context context) {
         final FactoryUtil.CatalogFactoryHelper helper =
                 FactoryUtil.createCatalogFactoryHelper(this, context);
-        helper.validate();
+
+        GlueCatalogOptionsUtils optionsUtils =
+                new GlueCatalogOptionsUtils(context.getOptions(), context.getConfiguration());
+        helper.validateExcept(optionsUtils.getNonValidatedPrefixes().toArray(new String[0]));
+
         if (LOG.isDebugEnabled()) {
             LOG.debug(
                     context.getOptions().entrySet().stream()
@@ -63,9 +69,13 @@ public class GlueCatalogFactory implements CatalogFactory {
                             .collect(Collectors.joining("\n")));
         }
 
+        Properties glueCatalogValidatedProperties = optionsUtils.getValidatedConfigurations();
+
         return new GlueCatalog(
                 context.getName(),
-                helper.getOptions().get(GlueCatalogFactoryOptions.DEFAULT_DATABASE),
-                context.getConfiguration());
+                glueCatalogValidatedProperties.getProperty(
+                        GlueCatalogFactoryOptions.DEFAULT_DATABASE.key()),
+                context.getConfiguration(),
+                glueCatalogValidatedProperties);
     }
 }
