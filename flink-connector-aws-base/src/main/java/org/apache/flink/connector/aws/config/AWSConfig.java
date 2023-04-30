@@ -128,8 +128,7 @@ public class AWSConfig {
 
         this.httpClientApacheConnectionTimeoutMs =
                 properties.get(
-                        ConfigOptions.key(
-                                        AWSConfigConstants.HTTP_CLIENT_APACHE_CONNECTION_TIMEOUT_MS)
+                        ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_CONNECTION_TIMEOUT_MS)
                                 .longType()
                                 .noDefaultValue());
 
@@ -155,9 +154,7 @@ public class AWSConfig {
         this.httpClientApacheSocketTimeoutMs =
                 properties
                         .getOptional(
-                                ConfigOptions.key(
-                                                AWSConfigConstants
-                                                        .HTTP_CLIENT_APACHE_SOCKET_TIMEOUT_MS)
+                                ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_SOCKET_TIMEOUT_MS)
                                         .longType()
                                         .noDefaultValue())
                         .orElse(0L);

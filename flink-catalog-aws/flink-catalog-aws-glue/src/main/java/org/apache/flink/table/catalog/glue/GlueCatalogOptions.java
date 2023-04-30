@@ -42,64 +42,10 @@ public class GlueCatalogOptions extends CommonCatalogOptions {
                     .stringType()
                     .noDefaultValue();
 
-    public static final ConfigOption<String> HTTP_CLIENT_TYPE =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_TYPE)
-                    .stringType()
-                    .defaultValue(AWSConfigConstants.CLIENT_TYPE_URLCONNECTION);
-
-    public static final ConfigOption<Long> HTTP_CLIENT_APACHE_CONNECTION_ACQUISITION_TIMEOUT_MS =
-            ConfigOptions.key(
-                            AWSConfigConstants.HTTP_CLIENT_APACHE_CONNECTION_ACQUISITION_TIMEOUT_MS)
-                    .longType()
-                    .defaultValue(0L);
-
     public static final ConfigOption<Boolean> GLUE_CATALOG_SKIP_NAME_VALIDATION =
             ConfigOptions.key(AWSConfigConstants.GLUE_CATALOG_SKIP_NAME_VALIDATION)
                     .booleanType()
                     .defaultValue(AWSConfigConstants.GLUE_CATALOG_SKIP_NAME_VALIDATION_DEFAULT);
-
-    public static final ConfigOption<Long> HTTP_CLIENT_APACHE_CONNECTION_MAX_IDLE_TIME_MS =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_APACHE_CONNECTION_MAX_IDLE_TIME_MS)
-                    .longType()
-                    .defaultValue(0L);
-
-    public static final ConfigOption<Long> HTTP_CLIENT_APACHE_CONNECTION_TIME_TO_LIVE_MS =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_APACHE_CONNECTION_TIME_TO_LIVE_MS)
-                    .longType()
-                    .defaultValue(0L);
-
-    public static final ConfigOption<Long> HTTP_CLIENT_APACHE_CONNECTION_TIMEOUT_MS =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_APACHE_CONNECTION_TIMEOUT_MS)
-                    .longType()
-                    .defaultValue(0L);
-
-    public static final ConfigOption<Boolean> HTTP_CLIENT_APACHE_EXPECT_CONTINUE_ENABLED =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_APACHE_EXPECT_CONTINUE_ENABLED)
-                    .booleanType()
-                    .defaultValue(false);
-
-    public static final ConfigOption<Integer> HTTP_CLIENT_APACHE_MAX_CONNECTIONS =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_APACHE_MAX_CONNECTIONS)
-                    .intType()
-                    .defaultValue(1);
-
-    public static final ConfigOption<Long> HTTP_CLIENT_APACHE_SOCKET_TIMEOUT_MS =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_APACHE_SOCKET_TIMEOUT_MS)
-                    .longType()
-                    .defaultValue(0L);
-
-    public static final ConfigOption<Boolean> HTTP_CLIENT_APACHE_TCP_KEEP_ALIVE_ENABLED =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_APACHE_TCP_KEEP_ALIVE_ENABLED)
-                    .booleanType()
-                    .defaultValue(false);
-
-    public static final ConfigOption<Boolean>
-            HTTP_CLIENT_APACHE_USE_IDLE_CONNECTION_REAPER_ENABLED =
-                    ConfigOptions.key(
-                                    AWSConfigConstants
-                                            .HTTP_CLIENT_APACHE_USE_IDLE_CONNECTION_REAPER_ENABLED)
-                            .booleanType()
-                            .defaultValue(false);
 
     public static final ConfigOption<String> GLUE_CATALOG_ENDPOINT =
             ConfigOptions.key(AWSConfigConstants.GLUE_CATALOG_ENDPOINT)
@@ -117,16 +63,6 @@ public class GlueCatalogOptions extends CommonCatalogOptions {
                     .booleanType()
                     .defaultValue(AWSConfigConstants.GLUE_CATALOG_SKIP_ARCHIVE_DEFAULT);
 
-    public static final ConfigOption<Long> HTTP_CLIENT_URLCONNECTION_CONNECTION_TIMEOUT_MS =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_URLCONNECTION_CONNECTION_TIMEOUT_MS)
-                    .longType()
-                    .defaultValue(0L);
-
-    public static final ConfigOption<Long> HTTP_CLIENT_URLCONNECTION_SOCKET_TIMEOUT_MS =
-            ConfigOptions.key(AWSConfigConstants.HTTP_CLIENT_URLCONNECTION_SOCKET_TIMEOUT_MS)
-                    .longType()
-                    .defaultValue(0L);
-
     public static final ConfigOption<String> PATH =
             ConfigOptions.key("catalog-path").stringType().noDefaultValue();
 
@@ -135,23 +71,11 @@ public class GlueCatalogOptions extends CommonCatalogOptions {
         final Set<ConfigOption<?>> options = new HashSet<>();
         options.add(INPUT_FORMAT);
         options.add(OUTPUT_FORMAT);
-        options.add(HTTP_CLIENT_TYPE);
-        options.add(HTTP_CLIENT_APACHE_CONNECTION_ACQUISITION_TIMEOUT_MS);
         options.add(GLUE_CATALOG_SKIP_NAME_VALIDATION);
-        options.add(HTTP_CLIENT_APACHE_CONNECTION_MAX_IDLE_TIME_MS);
-        options.add(HTTP_CLIENT_APACHE_CONNECTION_TIME_TO_LIVE_MS);
-        options.add(HTTP_CLIENT_APACHE_CONNECTION_TIMEOUT_MS);
-        options.add(HTTP_CLIENT_APACHE_EXPECT_CONTINUE_ENABLED);
-        options.add(HTTP_CLIENT_APACHE_MAX_CONNECTIONS);
-        options.add(HTTP_CLIENT_APACHE_SOCKET_TIMEOUT_MS);
-        options.add(HTTP_CLIENT_APACHE_TCP_KEEP_ALIVE_ENABLED);
-        options.add(HTTP_CLIENT_APACHE_USE_IDLE_CONNECTION_REAPER_ENABLED);
         options.add(GLUE_CATALOG_ENDPOINT);
         options.add(GLUE_CATALOG_ID);
         options.add(GLUE_ACCOUNT_ID);
         options.add(GLUE_CATALOG_SKIP_ARCHIVE);
-        options.add(HTTP_CLIENT_URLCONNECTION_CONNECTION_TIMEOUT_MS);
-        options.add(HTTP_CLIENT_URLCONNECTION_SOCKET_TIMEOUT_MS);
         options.add(DEFAULT_DATABASE);
         return options;
     }

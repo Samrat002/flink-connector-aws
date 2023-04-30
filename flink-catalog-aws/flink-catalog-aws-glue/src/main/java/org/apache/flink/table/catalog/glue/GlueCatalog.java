@@ -22,7 +22,9 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.annotation.VisibleForTesting;
 import org.apache.flink.configuration.ReadableConfig;
 import org.apache.flink.connector.aws.config.AWSConfig;
-import org.apache.flink.connector.aws.util.AwsClientFactories;
+import org.apache.flink.connector.aws.config.AWSConfigConstants;
+import org.apache.flink.connector.aws.util.AWSClientUtil;
+import org.apache.flink.connector.aws.util.AWSGeneralUtil;
 import org.apache.flink.table.catalog.AbstractCatalog;
 import org.apache.flink.table.catalog.CatalogBaseTable;
 import org.apache.flink.table.catalog.CatalogDatabase;
@@ -48,6 +50,7 @@ import org.apache.flink.table.catalog.exceptions.TableAlreadyExistException;
 import org.apache.flink.table.catalog.exceptions.TableNotExistException;
 import org.apache.flink.table.catalog.exceptions.TableNotPartitionedException;
 import org.apache.flink.table.catalog.exceptions.TablePartitionedException;
+import org.apache.flink.table.catalog.glue.constants.GlueCatalogConfigConstants;
 import org.apache.flink.table.catalog.glue.constants.GlueCatalogConstants;
 import org.apache.flink.table.catalog.glue.operator.GlueDatabaseOperator;
 import org.apache.flink.table.catalog.glue.operator.GlueFunctionOperator;
@@ -62,6 +65,9 @@ import org.apache.flink.util.StringUtils;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import software.amazon.awssdk.http.SdkHttpClient;
+import software.amazon.awssdk.http.apache.ApacheHttpClient;
+import software.amazon.awssdk.http.urlconnection.UrlConnectionHttpClient;
 import software.amazon.awssdk.services.glue.GlueClient;
 import software.amazon.awssdk.services.glue.model.GetTablesRequest;
 import software.amazon.awssdk.services.glue.model.GetTablesResponse;
@@ -72,6 +78,7 @@ import software.amazon.awssdk.services.glue.model.Table;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 
 import static org.apache.flink.util.Preconditions.checkArgument;
 import static org.apache.flink.util.Preconditions.checkNotNull;
@@ -96,10 +103,18 @@ public class GlueCatalog extends AbstractCatalog {
     public static final String DEFAULT_DB = "default";
 
     public GlueCatalog(String catalogName, String databaseName, ReadableConfig catalogConfig) {
+        this(catalogName, databaseName, catalogConfig, new Properties());
+    }
+
+    public GlueCatalog(
+            String catalogName,
+            String databaseName,
+            ReadableConfig catalogConfig,
+            Properties glueClientProperties) {
         super(catalogName, databaseName);
         checkNotNull(catalogConfig, "Catalog config cannot be null.");
         AWSConfig awsConfig = new AWSConfig(catalogConfig);
-        glueClient = AwsClientFactories.factory(awsConfig).glue();
+        glueClient = createClient(glueClientProperties);
         String catalogPath = catalogConfig.get(GlueCatalogOptions.PATH);
         this.glueDatabaseOperator =
                 new GlueDatabaseOperator(getName(), catalogPath, awsConfig, glueClient);
@@ -109,6 +124,27 @@ public class GlueCatalog extends AbstractCatalog {
                 new GluePartitionOperator(getName(), catalogPath, awsConfig, glueClient);
         this.glueFunctionOperator =
                 new GlueFunctionOperator(getName(), catalogPath, awsConfig, glueClient);
+    }
+
+    private static GlueClient createClient(Properties glueClientProperties) {
+        return AWSClientUtil.createAwsSyncClient(
+                glueClientProperties,
+                createHttpClient(glueClientProperties),
+                GlueClient.builder(),
+                GlueCatalogConfigConstants.BASE_GLUE_USER_AGENT_PREFIX_FORMAT,
+                GlueCatalogConfigConstants.GLUE_CLIENT_USER_AGENT_PREFIX);
+    }
+
+    private static SdkHttpClient createHttpClient(Properties properties) {
+        switch (properties.getProperty(
+                AWSConfigConstants.HTTP_CLIENT_TYPE,
+                AWSConfigConstants.CLIENT_TYPE_URLCONNECTION)) {
+            case AWSConfigConstants.CLIENT_TYPE_APACHE:
+                return AWSGeneralUtil.createSyncHttpClient(properties, ApacheHttpClient.builder());
+            default:
+                return AWSGeneralUtil.createSyncHttpClient(
+                        properties, UrlConnectionHttpClient.builder());
+        }
     }
 
     @VisibleForTesting
