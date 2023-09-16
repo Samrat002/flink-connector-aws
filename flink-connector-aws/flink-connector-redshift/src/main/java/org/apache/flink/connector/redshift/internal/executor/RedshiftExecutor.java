@@ -43,7 +43,7 @@ import static org.apache.flink.table.data.RowData.createFieldGetter;
 
 /** Redshift Executor. */
 public interface RedshiftExecutor extends Serializable {
-    final Logger LOG = LoggerFactory.getLogger(RedshiftUpsertExecutor.class);
+    Logger LOG = LoggerFactory.getLogger(RedshiftUpsertExecutor.class);
 
     void prepareStatement(RedshiftConnectionImpl connection) throws SQLException;
 
