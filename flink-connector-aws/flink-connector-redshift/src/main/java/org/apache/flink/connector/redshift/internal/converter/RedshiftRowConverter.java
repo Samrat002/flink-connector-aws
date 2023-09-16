@@ -213,13 +213,6 @@ public class RedshiftRowConverter implements Serializable {
                                 index + 1,
                                 val.getDecimal(index, decimalPrecision, decimalScale)
                                         .toBigDecimal());
-                // case ARRAY:
-                //     return (val, index, statement) ->
-                //             statement.setArray(
-                //                     index + 1,
-                //                     (Object[])
-                //                             ClickHouseConverterUtils.toExternal(
-                //                                     val.getArray(index), type));
             case MAP:
                 return (val, index, statement) ->
                         statement.setObject(
