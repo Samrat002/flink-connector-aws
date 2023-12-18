@@ -21,9 +21,9 @@ import org.apache.flink.annotation.PublicEvolving;
 import org.apache.flink.configuration.ConfigOption;
 import org.apache.flink.configuration.ConfigOptions;
 import org.apache.flink.configuration.ReadableConfig;
-import org.apache.flink.connector.redshift.internal.executor.RedshiftS3Util;
-import org.apache.flink.connector.redshift.internal.model.SinkMode;
-import org.apache.flink.connector.redshift.internal.options.RedshiftOptions;
+import org.apache.flink.connector.redshift.executor.RedshiftS3Util;
+import org.apache.flink.connector.redshift.mode.SinkMode;
+import org.apache.flink.connector.redshift.options.RedshiftOptions;
 import org.apache.flink.table.catalog.ResolvedSchema;
 import org.apache.flink.table.catalog.UniqueConstraint;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
@@ -32,6 +32,7 @@ import org.apache.flink.table.factories.FactoryUtil;
 import org.apache.flink.table.types.DataType;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -44,44 +45,48 @@ public class RedshiftDynamicTableFactory implements DynamicTableSinkFactory {
             ConfigOptions.key("hostname")
                     .stringType()
                     .noDefaultValue()
-                    .withDeprecatedKeys("the Redshift hostname.");
+                    .withDeprecatedKeys("AWS Redshift cluster hostname.");
 
     public static final ConfigOption<Integer> PORT =
             ConfigOptions.key("port")
                     .intType()
                     .defaultValue(5439)
-                    .withDeprecatedKeys("the Redshift port.");
+                    .withDeprecatedKeys("AWS Redshift port number.\nDefault value : 5439.");
 
     public static final ConfigOption<String> USERNAME =
             ConfigOptions.key("username")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("the Redshift username.");
+                    .withDescription("AWS Redshift Cluster username.");
 
     public static final ConfigOption<String> PASSWORD =
             ConfigOptions.key("password")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("the Redshift password.");
+                    .withDescription("AWS Redshift cluster password.");
 
     public static final ConfigOption<String> DATABASE_NAME =
             ConfigOptions.key("sink.database-name")
                     .stringType()
                     .defaultValue("dev")
-                    .withDescription("the Redshift database name. Default to `dev`.");
+                    .withDescription(
+                            "AWS Redshift cluster database name. Default value set to `dev`.");
 
     public static final ConfigOption<String> TABLE_NAME =
             ConfigOptions.key("sink.table-name")
                     .stringType()
                     .noDefaultValue()
-                    .withDescription("the Redshift table name.");
+                    .withDescription("AWS Redshift cluster sink table name.");
 
     public static final ConfigOption<Integer> SINK_BATCH_SIZE =
             ConfigOptions.key("sink.batch-size")
                     .intType()
                     .defaultValue(1000)
                     .withDescription(
-                            "Flush max size, over this number of records, will flush data. The default value is 1000.");
+                            "`sink.batch-size` determines the maximum size of batch, in terms of the number of records, "
+                                    + "at which data will trigger a flush operation."
+                                    + " When the number of records exceeds this threshold, the system initiates a flush to manage the data.\n"
+                                    + "Default Value: 1000");
 
     public static final ConfigOption<Duration> SINK_FLUSH_INTERVAL =
             ConfigOptions.key("sink.flush-interval")
@@ -142,26 +147,20 @@ public class RedshiftDynamicTableFactory implements DynamicTableSinkFactory {
 
     @Override
     public Set<ConfigOption<?>> requiredOptions() {
-        Set<ConfigOption<?>> requiredOptions = new HashSet<>();
-        requiredOptions.add(HOSTNAME);
-        requiredOptions.add(PORT);
-        requiredOptions.add(DATABASE_NAME);
-        requiredOptions.add(TABLE_NAME);
-        requiredOptions.add(SINK_MODE);
-        return requiredOptions;
+        return new HashSet<>(Arrays.asList(HOSTNAME, PORT, DATABASE_NAME, TABLE_NAME, SINK_MODE));
     }
 
     @Override
     public Set<ConfigOption<?>> optionalOptions() {
-        Set<ConfigOption<?>> optionalOptions = new HashSet<>();
-        optionalOptions.add(USERNAME);
-        optionalOptions.add(PASSWORD);
-        optionalOptions.add(SINK_BATCH_SIZE);
-        optionalOptions.add(SINK_FLUSH_INTERVAL);
-        optionalOptions.add(SINK_MAX_RETRIES);
-        optionalOptions.add(TEMP_S3_URI);
-        optionalOptions.add(IAM_ROLE_ARN);
-        return optionalOptions;
+        return new HashSet<>(
+                Arrays.asList(
+                        USERNAME,
+                        PASSWORD,
+                        SINK_BATCH_SIZE,
+                        SINK_FLUSH_INTERVAL,
+                        SINK_MAX_RETRIES,
+                        TEMP_S3_URI,
+                        IAM_ROLE_ARN));
     }
 
     private RedshiftOptions getOptions(ReadableConfig config) {
@@ -184,21 +183,31 @@ public class RedshiftDynamicTableFactory implements DynamicTableSinkFactory {
     private void validateConfigOptions(ReadableConfig config) {
         if (config.get(SINK_MODE) == SinkMode.COPY
                 && !config.getOptional(TEMP_S3_URI).isPresent()) {
-            throw new IllegalArgumentException(
-                    "A S3 URL must be provided as the COPY mode is True!");
+            throw new IllegalArgumentException("A S3 URL must be provided when sink mode is COPY");
         } else if (config.getOptional(TEMP_S3_URI).isPresent()) {
             String uri = config.get(TEMP_S3_URI);
             try {
                 RedshiftS3Util.getS3Parts(uri);
             } catch (Exception e) {
-                throw new IllegalArgumentException("A incorrect S3 URL provided!", e);
+                throw new IllegalArgumentException(
+                        "The attempt to access S3 has failed due to an incorrect S3 URL provided."
+                                + " Please verify the authentication credentials and ensure the accessibility of the specified bucket."
+                                + "Resolution Steps:\n"
+                                + "\n"
+                                + "Double-check the accuracy of the provided S3 URL.\n"
+                                + "Verify the correctness of the authentication credentials.\n"
+                                + "Ensure that the specified bucket is accessible and properly configured.",
+                        e);
             }
         }
 
         if (config.get(SINK_MODE) == SinkMode.COPY
                 && !config.getOptional(IAM_ROLE_ARN).isPresent()) {
             throw new IllegalArgumentException(
-                    "A IAM Role ARN which attached to the Amazon Redshift cluster must be provided as the COPY mode is selected.");
+                    "Requirement for COPY Mode in Amazon Redshift Cluster\n"
+                            + "\n"
+                            + "To utilize the COPY mode, it is mandatory to furnish the IAM Role ARN linked to the Amazon Redshift cluster. "
+                            + "Please ensure that the IAM Role ARN is accurately specified to enable seamless functionality in COPY mode.");
         }
     }
 }

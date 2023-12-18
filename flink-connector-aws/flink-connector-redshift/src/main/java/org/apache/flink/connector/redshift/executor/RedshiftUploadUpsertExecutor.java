@@ -15,15 +15,15 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.executor;
+package org.apache.flink.connector.redshift.executor;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.connector.redshift.internal.RedshiftStatementFactory;
-import org.apache.flink.connector.redshift.internal.connection.RedshiftConnectionProvider;
-import org.apache.flink.connector.redshift.internal.converter.RedshiftCopyRowConverter;
-import org.apache.flink.connector.redshift.internal.converter.RedshiftRowConverter;
-import org.apache.flink.connector.redshift.internal.options.RedshiftOptions;
+import org.apache.flink.connector.redshift.connection.RedshiftConnectionProvider;
+import org.apache.flink.connector.redshift.converter.RedshiftCopyRowConverter;
+import org.apache.flink.connector.redshift.converter.RedshiftRowConverter;
+import org.apache.flink.connector.redshift.options.RedshiftOptions;
+import org.apache.flink.connector.redshift.statement.RedshiftStatementFactory;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.LogicalType;
 
@@ -108,7 +108,7 @@ public class RedshiftUploadUpsertExecutor implements RedshiftExecutor {
         this.iamRoleArn = options.getIamRoleArn();
         this.s3Client = AmazonS3ClientBuilder.defaultClient();
         this.copyRowConverter = new RedshiftCopyRowConverter(fieldTypes);
-        this.stageTableName = "_" + tableName.split("\\.")[1] + "_stage";
+        this.stageTableName = options.getDatabaseName() + "/" + tableName + "_stage";
         this.tempS3Uri = RedshiftS3Util.getS3UriWithFileName(options.getTempS3Uri());
     }
 

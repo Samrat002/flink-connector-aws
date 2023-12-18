@@ -15,9 +15,9 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.connection;
+package org.apache.flink.connector.redshift.connection;
 
-import org.apache.flink.connector.redshift.internal.options.RedshiftOptions;
+import org.apache.flink.connector.redshift.options.RedshiftOptions;
 
 import com.amazon.redshift.jdbc.RedshiftConnectionImpl;
 import org.slf4j.Logger;

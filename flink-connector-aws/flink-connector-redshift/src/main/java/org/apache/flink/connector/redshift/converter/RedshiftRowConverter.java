@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.converter;
+package org.apache.flink.connector.redshift.converter;
 
 import org.apache.flink.table.data.DecimalData;
 import org.apache.flink.table.data.GenericRowData;
@@ -43,9 +43,6 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.UUID;
-
-import static org.apache.flink.connector.redshift.internal.converter.RedshiftConverterUtils.BOOL_TRUE;
-import static org.apache.flink.connector.redshift.internal.converter.RedshiftConverterUtils.toEpochDayOneTimestamp;
 
 /** Redshift Row Converter. */
 public class RedshiftRowConverter implements Serializable {
@@ -100,7 +97,7 @@ public class RedshiftRowConverter implements Serializable {
             case NULL:
                 return val -> null;
             case BOOLEAN:
-                return val -> BOOL_TRUE == ((Number) val).intValue();
+                return val -> RedshiftConverterUtils.BOOL_TRUE == ((Number) val).intValue();
             case FLOAT:
             case DOUBLE:
             case INTERVAL_YEAR_MONTH:
@@ -187,7 +184,8 @@ public class RedshiftRowConverter implements Serializable {
             case TIME_WITHOUT_TIME_ZONE:
                 return (val, index, statement) -> {
                     LocalTime localTime = LocalTime.ofNanoOfDay(val.getInt(index) * 1_000_000L);
-                    statement.setTimestamp(index + 1, toEpochDayOneTimestamp(localTime));
+                    statement.setTimestamp(
+                            index + 1, RedshiftConverterUtils.toEpochDayOneTimestamp(localTime));
                 };
             case TIMESTAMP_WITH_TIME_ZONE:
             case TIMESTAMP_WITHOUT_TIME_ZONE:

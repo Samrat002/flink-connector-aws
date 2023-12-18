@@ -15,10 +15,10 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.options;
+package org.apache.flink.connector.redshift.options;
 
 import org.apache.flink.annotation.Internal;
-import org.apache.flink.connector.redshift.internal.model.SinkMode;
+import org.apache.flink.connector.redshift.mode.SinkMode;
 import org.apache.flink.util.Preconditions;
 
 import java.io.Serializable;

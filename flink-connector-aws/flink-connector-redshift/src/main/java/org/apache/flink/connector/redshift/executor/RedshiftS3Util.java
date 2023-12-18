@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.executor;
+package org.apache.flink.connector.redshift.executor;
 
 import org.apache.flink.annotation.Internal;
 

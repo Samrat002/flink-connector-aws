@@ -15,15 +15,14 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.executor;
+package org.apache.flink.connector.redshift.executor;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.connector.redshift.internal.RedshiftStatementFactory;
-import org.apache.flink.connector.redshift.internal.connection.RedshiftConnectionProvider;
-import org.apache.flink.connector.redshift.internal.converter.RedshiftRowConverter;
-import org.apache.flink.connector.redshift.internal.model.SinkMode;
-import org.apache.flink.connector.redshift.internal.options.RedshiftOptions;
+import org.apache.flink.connector.redshift.connection.RedshiftConnectionProvider;
+import org.apache.flink.connector.redshift.converter.RedshiftRowConverter;
+import org.apache.flink.connector.redshift.options.RedshiftOptions;
+import org.apache.flink.connector.redshift.statement.RedshiftStatementFactory;
 import org.apache.flink.table.data.GenericRowData;
 import org.apache.flink.table.data.RowData;
 import org.apache.flink.table.types.logical.LogicalType;
@@ -102,27 +101,50 @@ public interface RedshiftExecutor extends Serializable {
             LogicalType[] fieldTypes,
             RedshiftOptions options) {
         if (keyFields.length > 0) {
-            if (options.getSinkMode() == SinkMode.COPY) {
-                LOG.info("Create Upload Copy UPSERT Executor.");
-                return createUploadUpsertExecutor(fieldNames, keyFields, fieldTypes, options);
-            } else {
-                LOG.info("Create pure JDBC UPSRET Executor.");
-                return createUpsertExecutor(fieldNames, keyFields, fieldTypes, options);
+            switch (options.getSinkMode()) {
+                case COPY:
+                    LOG.info("Creating COPY Mode UPSERT Executor.");
+                    return createUploadUpsertExecutor(fieldNames, keyFields, fieldTypes, options);
+                case JDBC:
+                    LOG.info("Creating JDBC Mode UPSERT Executor.");
+                    return createUpsertExecutor(fieldNames, keyFields, fieldTypes, options);
+                default:
+                    throw new IllegalArgumentException(
+                            "Sink Mode "
+                                    + options.getSinkMode()
+                                    + " not recognised. "
+                                    + "Flink Connector Redshift Supports only JDBC / COPY mode.");
             }
 
         } else {
-            if (options.getSinkMode() == SinkMode.COPY) {
-                LOG.info("Create Upload Copy batch Executor.");
-                return createUploadBatchExecutor(fieldNames, fieldTypes, options);
-            } else {
-                LOG.info("Create pure JDBC batch Executor.");
-                return createBatchExecutor(fieldNames, fieldTypes, options);
+            switch (options.getSinkMode()) {
+                case COPY:
+                    LOG.info("Creating COPY Mode batch Executor.");
+                    return createUploadBatchExecutor(fieldNames, fieldTypes, options);
+                case JDBC:
+                    LOG.info("Creating JDBC Mode batch Executor.");
+                    return createBatchExecutor(fieldNames, fieldTypes, options);
+                default:
+                    throw new IllegalArgumentException(
+                            "Sink Mode "
+                                    + options.getSinkMode()
+                                    + " not recognised. "
+                                    + "Flink Connector Redshift Supports only JDBC / COPY mode.");
             }
         }
     }
 
+    /**
+     *
+     * @param fieldNames field names.
+     * @param fieldTypes dataTypes for the field.
+     * @param options Redshift options.
+     * @return { @RedshiftUploadBatchExecutor } executor.
+     */
     static RedshiftUploadBatchExecutor createUploadBatchExecutor(
-            String[] fieldNames, LogicalType[] fieldTypes, RedshiftOptions options) {
+            final String[] fieldNames,
+            final LogicalType[] fieldTypes,
+            final RedshiftOptions options) {
         return new RedshiftUploadBatchExecutor(fieldNames, fieldTypes, options);
     }
 

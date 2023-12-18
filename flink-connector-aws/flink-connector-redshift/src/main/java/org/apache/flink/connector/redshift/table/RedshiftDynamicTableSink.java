@@ -18,8 +18,8 @@
 package org.apache.flink.connector.redshift.table;
 
 import org.apache.flink.annotation.PublicEvolving;
-import org.apache.flink.connector.redshift.internal.AbstractRedshiftOutputFormat;
-import org.apache.flink.connector.redshift.internal.options.RedshiftOptions;
+import org.apache.flink.connector.redshift.format.AbstractRedshiftOutputFormat;
+import org.apache.flink.connector.redshift.options.RedshiftOptions;
 import org.apache.flink.table.connector.ChangelogMode;
 import org.apache.flink.table.connector.sink.DynamicTableSink;
 import org.apache.flink.table.connector.sink.OutputFormatProvider;
@@ -27,7 +27,7 @@ import org.apache.flink.table.types.DataType;
 import org.apache.flink.types.RowKind;
 import org.apache.flink.util.Preconditions;
 
-/** Dynamic Table Sink. */
+/** AWS Redshift Dynamic Table Sink . */
 @PublicEvolving
 public class RedshiftDynamicTableSink implements DynamicTableSink {
     private final String[] primaryKeys;

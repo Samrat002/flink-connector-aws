@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.converter;
+package org.apache.flink.connector.redshift.converter;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.table.data.ArrayData;

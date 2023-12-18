@@ -15,13 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.executor;
+package org.apache.flink.connector.redshift.executor;
 
 import org.apache.flink.annotation.Internal;
 import org.apache.flink.api.common.functions.RuntimeContext;
-import org.apache.flink.connector.redshift.internal.connection.RedshiftConnectionProvider;
-import org.apache.flink.connector.redshift.internal.converter.RedshiftRowConverter;
-import org.apache.flink.connector.redshift.internal.options.RedshiftOptions;
+import org.apache.flink.connector.redshift.connection.RedshiftConnectionProvider;
+import org.apache.flink.connector.redshift.converter.RedshiftRowConverter;
+import org.apache.flink.connector.redshift.options.RedshiftOptions;
 import org.apache.flink.table.data.RowData;
 
 import com.amazon.redshift.jdbc.RedshiftConnectionImpl;

@@ -15,11 +15,13 @@
  * limitations under the License.
  */
 
-package org.apache.flink.connector.redshift.internal.model;
+package org.apache.flink.connector.redshift.mode;
 
 import org.apache.flink.annotation.Internal;
 
-/** Declared Sink Modes. */
+/**
+ * Declared Sink Modes for AWS Redshift. Redshift Support 3 types of modes : 1. JDBC 2. ODBC 3. COPY
+ */
 @Internal
 public enum SinkMode {
     JDBC("JDBC"),
